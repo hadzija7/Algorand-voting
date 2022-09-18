@@ -1,0 +1,3 @@
+[submodule "Algorand-voting-frontend"]
+	path = Algorand-voting-frontend
+	url = https://github.com/hadzija7/Algorand-voting-frontend.git

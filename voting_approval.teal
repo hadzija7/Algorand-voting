@@ -1,0 +1,61 @@
+#pragma version 6
+txn ApplicationID
+int 0
+==
+bnz main_l8
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l7
+txna ApplicationArgs 0
+byte "vote"
+==
+bnz main_l4
+err
+main_l4:
+int 1
+int 1
+==
+bnz main_l6
+int 0
+return
+main_l6:
+int 1
+return
+main_l7:
+txn Sender
+global CreatorAddress
+==
+return
+main_l8:
+txn NumAppArgs
+int 6
+==
+assert
+txn Note
+byte "voting-system:uv1"
+==
+assert
+byte "ID"
+txna ApplicationArgs 0
+app_global_put
+byte "IMAGE"
+txna ApplicationArgs 1
+app_global_put
+byte "DESCRIPTION"
+txna ApplicationArgs 2
+app_global_put
+byte "OPTION1"
+txna ApplicationArgs 3
+app_global_put
+byte "OPTION2"
+txna ApplicationArgs 4
+app_global_put
+byte "OPTION3"
+txna ApplicationArgs 5
+app_global_put
+byte "OWNER"
+txn Sender
+app_global_put
+int 1
+return

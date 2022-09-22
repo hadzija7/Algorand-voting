@@ -2,6 +2,7 @@ from pyteal import *
 
 class Poll:
     class Variables:
+        #global
         id = Bytes("ID")
         image = Bytes("IMAGE")
         description = Bytes("DESCRIPTION")
@@ -12,6 +13,9 @@ class Poll:
         count2 = Bytes("COUNT2")
         option3 = Bytes("OPTION3")
         count3 = Bytes("COUNT3")
+        
+        #local
+        voted = Bytes("VOTED")#if 1, user already voted
 
     class AppMethods:
         #Method used for a voting. Voters can vote only once per Poll.
@@ -21,8 +25,11 @@ class Poll:
 
     def application_creation(self):
         return Seq([
+            #Asserts
             Assert(Txn.application_args.length() == Int(6)),
             Assert(Txn.note() == Bytes("voting-system:uv1")),
+            
+            #Global storage
             App.globalPut(self.Variables.id, Txn.application_args[0]),
             App.globalPut(self.Variables.image, Txn.application_args[1]),
             App.globalPut(self.Variables.description, Txn.application_args[2]),
@@ -30,36 +37,39 @@ class Poll:
             App.globalPut(self.Variables.option2, Txn.application_args[4]),
             App.globalPut(self.Variables.option3, Txn.application_args[5]),
             App.globalPut(self.Variables.owner, Txn.sender()),
+            App.globalPut(self.Variables.count1, Int(1)),
+            App.globalPut(self.Variables.count2, Int(0)),
+            # App.globalPut(self.Variables.count3, Int(0)),
+
+            #Local storage
+            # App.localPut(Int(0), self.Variables.voted, Int(0)),
+
             Approve()
         ])
 
     def vote(self):
-        #option = Txn.application_args[1]
-        #Check if a user has already voted
-        can_vote = And(
-            Int(1) == Int(1)
-        )
-
+        option = Txn.application_args[1]
         #Determine which option count should be increased
         update_state = Seq(
-            # If(
-            #     option == Bytes("OPTION1"),
-            #     App.globalPut(self.Variables.count1, App.globalGet(self.Variables.count1) + Int(1)),
-            # ),
-            # If(option == "OPTION1").Then(
-            #     App.globalPut(self.Variables.count1, App.globalGet(self.Variables.count1) + 1),
-            # ).ElseIf(option == "OPTION2").Then(
-            #     App.globalPut(self.Variables.count2, App.globalGet(self.Variables.count2) + 1),
-            # ).ElseIf(option == "OPTION3").Then(
-            #     App.globalPut(self.Variables.count3, App.globalGet(self.Variables.count3) + 1),
-            # ).Else(
-            #     Reject()
-            # )
+            Cond(
+                [option == App.globalGet(self.Variables.option1), App.globalPut(self.Variables.count1, App.globalGet(self.Variables.count1) + Int(1))],
+                [option == App.globalGet(self.Variables.option2), App.globalPut(self.Variables.count2, App.globalGet(self.Variables.count2) + Int(1))],
+                [option == App.globalGet(self.Variables.option3), App.globalPut(self.Variables.count3, App.globalGet(self.Variables.count3) + Int(1))],
+            ),
             Approve()
         )
-
-        return If(can_vote).Then(update_state).Else(Reject())
-        # return update_state
+        return Seq(
+            # Assert(
+            #     And(
+            #         #check if number of arguments is correct
+            #         # Txn.application_args.length() == Int(2),
+            #         #check if user can vote (haven't already voted)
+            #         # App.localGet(Txn.sender(), self.Variables.voted) == Int(0),
+            #         #creator can't vote on its own poll
+            #     )
+            # ),
+            update_state,
+        )
 
     def application_start(self):
         return Cond(

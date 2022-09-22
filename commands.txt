@@ -1,0 +1,3 @@
+goal app create --creator $ACC1 --approval-prog /data/voting/voting_approval.teal --clear-prog /data/voting/voting_clear.teal --note voting-system:uv1 --global-byteslices 7 --global-ints 3 --local-byteslices 0 --local-ints 0 --app-arg "str:TestName" --app-arg "str:TestImage" --app-arg "str:TestDescription" --app-arg "str:option1" --app-arg "str:option2" --app-arg "str:option3"
+
+goal app call --app-id 1 -f $ACC1 --app-arg "str:vote" --app-arg "str:option1"

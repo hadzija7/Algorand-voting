@@ -1,33 +1,66 @@
-#pragma version 6
+#pragma version 5
 txn ApplicationID
 int 0
 ==
-bnz main_l8
+bnz main_l13
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l7
+bnz main_l12
 txna ApplicationArgs 0
 byte "vote"
 ==
 bnz main_l4
 err
 main_l4:
-int 1
-int 1
+txna ApplicationArgs 1
+byte "OPTION1"
+app_global_get
 ==
-bnz main_l6
-int 0
-return
-main_l6:
+bnz main_l11
+txna ApplicationArgs 1
+byte "OPTION2"
+app_global_get
+==
+bnz main_l10
+txna ApplicationArgs 1
+byte "OPTION3"
+app_global_get
+==
+bnz main_l8
+err
+main_l8:
+byte "COUNT3"
+byte "COUNT3"
+app_global_get
+int 1
++
+app_global_put
+main_l9:
 int 1
 return
-main_l7:
+main_l10:
+byte "COUNT2"
+byte "COUNT2"
+app_global_get
+int 1
++
+app_global_put
+b main_l9
+main_l11:
+byte "COUNT1"
+byte "COUNT1"
+app_global_get
+int 1
++
+app_global_put
+b main_l9
+main_l12:
 txn Sender
 global CreatorAddress
 ==
 return
-main_l8:
+main_l13:
 txn NumAppArgs
 int 6
 ==
@@ -56,6 +89,12 @@ txna ApplicationArgs 5
 app_global_put
 byte "OWNER"
 txn Sender
+app_global_put
+byte "COUNT1"
+int 1
+app_global_put
+byte "COUNT2"
+int 0
 app_global_put
 int 1
 return

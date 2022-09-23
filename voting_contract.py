@@ -39,7 +39,7 @@ class Poll:
             App.globalPut(self.Variables.owner, Txn.sender()),
             App.globalPut(self.Variables.count1, Int(1)),
             App.globalPut(self.Variables.count2, Int(0)),
-            # App.globalPut(self.Variables.count3, Int(0)),
+            App.globalPut(self.Variables.count3, Int(0)),
 
             #Local storage
             # App.localPut(Int(0), self.Variables.voted, Int(0)),
@@ -56,18 +56,19 @@ class Poll:
                 [option == App.globalGet(self.Variables.option2), App.globalPut(self.Variables.count2, App.globalGet(self.Variables.count2) + Int(1))],
                 [option == App.globalGet(self.Variables.option3), App.globalPut(self.Variables.count3, App.globalGet(self.Variables.count3) + Int(1))],
             ),
+            App.localPut(Txn.sender(), self.Variables.voted, Int(1)), #set the flag for the vote
             Approve()
         )
         return Seq(
-            # Assert(
-            #     And(
-            #         #check if number of arguments is correct
-            #         # Txn.application_args.length() == Int(2),
-            #         #check if user can vote (haven't already voted)
-            #         # App.localGet(Txn.sender(), self.Variables.voted) == Int(0),
-            #         #creator can't vote on its own poll
-            #     )
-            # ),
+            Assert(
+                And(
+                    #check if number of arguments is correct
+                    Txn.application_args.length() == Int(2),
+                    #check if user can vote (haven't already voted)
+                    App.localGet(Txn.sender(), self.Variables.voted) == Int(0),
+                    #creator can't vote on its own poll
+                )
+            ),
             update_state,
         )
 
@@ -76,7 +77,17 @@ class Poll:
             #If the app is not initialised yet / app_id == 0, then initialise it.
             [Txn.application_id() == Int(0), self.application_creation()],
             [Txn.on_completion() == OnComplete.DeleteApplication, self.application_deletion()],
+            [Txn.on_completion() == OnComplete.UpdateApplication, self.application_update()],
+            [Txn.on_completion() == OnComplete.OptIn, Approve()],
             [Txn.application_args[0] == self.AppMethods.vote, self.vote()]
+        )
+
+    def application_update(self):
+        return Seq(
+            Assert(
+                Global.creator_address() == Txn.sender(),
+            ),
+            Return(Int(1)) #allow the update
         )
 
     def application_deletion(self):

@@ -2,65 +2,97 @@
 txn ApplicationID
 int 0
 ==
-bnz main_l13
+bnz main_l17
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l12
+bnz main_l16
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l15
+txn OnCompletion
+int OptIn
+==
+bnz main_l14
 txna ApplicationArgs 0
 byte "vote"
 ==
-bnz main_l4
+bnz main_l6
 err
-main_l4:
+main_l6:
+txn NumAppArgs
+int 2
+==
+txn Sender
+byte "VOTED"
+app_local_get
+int 0
+==
+&&
+assert
 txna ApplicationArgs 1
 byte "OPTION1"
 app_global_get
 ==
-bnz main_l11
+bnz main_l13
 txna ApplicationArgs 1
 byte "OPTION2"
 app_global_get
 ==
-bnz main_l10
+bnz main_l12
 txna ApplicationArgs 1
 byte "OPTION3"
 app_global_get
 ==
-bnz main_l8
+bnz main_l10
 err
-main_l8:
+main_l10:
 byte "COUNT3"
 byte "COUNT3"
 app_global_get
 int 1
 +
 app_global_put
-main_l9:
+main_l11:
+txn Sender
+byte "VOTED"
+int 1
+app_local_put
 int 1
 return
-main_l10:
-byte "COUNT2"
-byte "COUNT2"
-app_global_get
-int 1
-+
-app_global_put
-b main_l9
-main_l11:
-byte "COUNT1"
-byte "COUNT1"
-app_global_get
-int 1
-+
-app_global_put
-b main_l9
 main_l12:
+byte "COUNT2"
+byte "COUNT2"
+app_global_get
+int 1
++
+app_global_put
+b main_l11
+main_l13:
+byte "COUNT1"
+byte "COUNT1"
+app_global_get
+int 1
++
+app_global_put
+b main_l11
+main_l14:
+int 1
+return
+main_l15:
+global CreatorAddress
+txn Sender
+==
+assert
+int 1
+return
+main_l16:
 txn Sender
 global CreatorAddress
 ==
 return
-main_l13:
+main_l17:
 txn NumAppArgs
 int 6
 ==
@@ -94,6 +126,9 @@ byte "COUNT1"
 int 1
 app_global_put
 byte "COUNT2"
+int 0
+app_global_put
+byte "COUNT3"
 int 0
 app_global_put
 int 1

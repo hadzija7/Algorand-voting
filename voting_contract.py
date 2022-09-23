@@ -70,10 +70,9 @@ class Poll:
                     #check if user can vote (haven't already voted)
                     App.localGet(Txn.sender(), self.Variables.voted) == Int(0),
                     #creator can't vote on its own poll
-                    #TO-DO
+                    
                     #voted has not ended yet
                     Global.latest_timestamp() < App.globalGet(self.Variables.voting_end),
-
                 )
             ),
             update_state,
@@ -92,9 +91,11 @@ class Poll:
             ),
             #logic
             #determine the winning option
-
-            #set the winning option
-            App.globalPut(self.Variables.winning_option, self.Variables.option1),
+            App.globalPut(self.Variables.winning_option, App.globalGet(self.Variables.option1)),
+            Cond(
+                [App.globalGet(self.Variables.count2) > App.globalGet(self.Variables.count1), App.globalPut(self.Variables.winning_option, App.globalGet(self.Variables.option2))],
+                [App.globalGet(self.Variables.count3) > App.globalGet(self.Variables.count2), App.globalPut(self.Variables.winning_option, App.globalGet(self.Variables.option3))],
+            ),
             Approve(),
         )
 

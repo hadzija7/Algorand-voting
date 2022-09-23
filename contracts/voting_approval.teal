@@ -2,23 +2,23 @@
 txn ApplicationID
 int 0
 ==
-bnz main_l19
+bnz main_l24
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l18
+bnz main_l23
 txn OnCompletion
 int UpdateApplication
 ==
-bnz main_l17
+bnz main_l22
 txn OnCompletion
 int OptIn
 ==
-bnz main_l16
+bnz main_l21
 txna ApplicationArgs 0
 byte "vote"
 ==
-bnz main_l8
+bnz main_l13
 txna ApplicationArgs 0
 byte "declare_winner"
 ==
@@ -37,10 +37,36 @@ app_global_get
 assert
 byte "WINNER"
 byte "OPTION1"
+app_global_get
 app_global_put
+byte "COUNT2"
+app_global_get
+byte "COUNT1"
+app_global_get
+>
+bnz main_l12
+byte "COUNT3"
+app_global_get
+byte "COUNT2"
+app_global_get
+>
+bnz main_l10
+err
+main_l10:
+byte "WINNER"
+byte "OPTION3"
+app_global_get
+app_global_put
+main_l11:
 int 1
 return
-main_l8:
+main_l12:
+byte "WINNER"
+byte "OPTION2"
+app_global_get
+app_global_put
+b main_l11
+main_l13:
 txn NumAppArgs
 int 2
 ==
@@ -60,64 +86,64 @@ txna ApplicationArgs 1
 byte "OPTION1"
 app_global_get
 ==
-bnz main_l15
+bnz main_l20
 txna ApplicationArgs 1
 byte "OPTION2"
 app_global_get
 ==
-bnz main_l14
+bnz main_l19
 txna ApplicationArgs 1
 byte "OPTION3"
 app_global_get
 ==
-bnz main_l12
+bnz main_l17
 err
-main_l12:
+main_l17:
 byte "COUNT3"
 byte "COUNT3"
 app_global_get
 int 1
 +
 app_global_put
-main_l13:
+main_l18:
 txn Sender
 byte "VOTED"
 int 1
 app_local_put
 int 1
 return
-main_l14:
+main_l19:
 byte "COUNT2"
 byte "COUNT2"
 app_global_get
 int 1
 +
 app_global_put
-b main_l13
-main_l15:
+b main_l18
+main_l20:
 byte "COUNT1"
 byte "COUNT1"
 app_global_get
 int 1
 +
 app_global_put
-b main_l13
-main_l16:
+b main_l18
+main_l21:
 int 1
 return
-main_l17:
+main_l22:
 global CreatorAddress
 txn Sender
 ==
 assert
 int 1
 return
-main_l18:
+main_l23:
 txn Sender
 global CreatorAddress
 ==
 return
-main_l19:
+main_l24:
 txn NumAppArgs
 int 7
 ==

@@ -13,3 +13,6 @@ This is only the demo of the voting system. The final goal is to implement anony
 
 ## Deployed dapp
 [dapp](https://hadzija7.github.io/Algorand-voting-frontend/).
+
+## Front-end
+https://github.com/hadzija7/Algorand-voting-frontend
